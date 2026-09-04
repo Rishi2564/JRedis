@@ -30,9 +30,18 @@ private final RespSerializer respSerializer = new RespSerializer();
     List<String[]> commands= respSerializer.deserialize(multipleCommands.getBytes(StandardCharsets.UTF_8));
     for(String[] s: commands){
         System.out.println();
-        for(String ss: s){
-            System.out.println(ss+" ");
+        for(String ss: s) {
+            System.out.println(ss + " ");
         }
     }
+    assertEquals(2,commands.size());
+    assertEquals(3,commands.get(0).length);
+    assertEquals(3,commands.get(1).length);
+    assertEquals("set",commands.get(0)[0]);
+    assertEquals("key",commands.get(0)[1]);
+    assertEquals("value",commands.get(0)[2]);
+    assertEquals("set",commands.get(1)[0]);
+    assertEquals("key",commands.get(1)[1]);
+    assertEquals("value",commands.get(1)[2]);
 }
 }

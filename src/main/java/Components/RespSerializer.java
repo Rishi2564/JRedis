@@ -31,6 +31,12 @@ public class RespSerializer {
         }
         return i;
     }
+    public String serializeBulkString(String s){
+        int length = s.length();
+        String respHeader="$"+length;
+        String respBody=s;
+        return respHeader+"\r\n"+respBody+"\r\n";
+    }
 
     public List<String[]> deserialize(byte[] command){
         try{
