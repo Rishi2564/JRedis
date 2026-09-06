@@ -1,4 +1,5 @@
-import Components.TcpServer;
+import Components.Server.TcpServer;
+import Config.AppConfig;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 
@@ -8,7 +9,13 @@ public class Main {
     System.out.println("Logs from your program will appear here!");
     AnnotationConfigApplicationContext context= new AnnotationConfigApplicationContext(AppConfig.class);
     TcpServer app= context.getBean(TcpServer.class);
-    app.startServer();
+    int port=6379;
+    for(int i=0;i<args.length;i++) {
+      if(args[i].equals("--port")) {
+        port=Integer.parseInt(args[i+1]);
+      }
+    }
+    app.startServer(port);
     //  Uncomment the code below to pass the first stage
   }
 }

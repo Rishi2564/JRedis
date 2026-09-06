@@ -1,11 +1,13 @@
-package Components;
+package Components.Service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class RespSerializer {
 
@@ -46,8 +48,9 @@ public class RespSerializer {
             int i=0;
             while(i<dataArr.length){
                 char curr=dataArr[i];
-                if(curr=='\u0000')
+                if(curr=='\u0000') {
                     break;
+                }
                 if(curr=='*'){
                     String arrLen="";
                     i++;
@@ -76,7 +79,7 @@ public class RespSerializer {
             }
             return res;
         }catch(Exception e){
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             return new ArrayList<>();
         }
     }

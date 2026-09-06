@@ -1,8 +1,13 @@
-package Components;
+package Components.Service;
 
+import Components.Repository.Store;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
+@Slf4j
 @Component
 public class CommandHandler {
     @Autowired
@@ -21,9 +26,16 @@ public class CommandHandler {
         try{
             String key=command[1];
             String value=command[2];
-            return store.set(key,value);
+            int pxFlag= Arrays.stream(command).toList().indexOf("px");
+            if(pxFlag!=-1){
+                int delta=Integer.parseInt(command[pxFlag+1]);
+                return store.set(key, value,delta);
+            }else {
+                return store.set(key, value);
+            }
         }
         catch(Exception e){
+            log.error(e.getMessage());
             return "$-1\r\n";
         }
 
@@ -33,7 +45,7 @@ public class CommandHandler {
             String key = command[1];
             return store.get(key);
         }catch(Exception e){
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             return "$-1\r\n";
         }
     }
