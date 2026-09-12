@@ -10,10 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Base64;
 
 @Slf4j
 @Component
 public class CommandHandler {
+    private static final String emptyRdbFile="UkVESVМwМDЕx+gyZWRpcy12ZХIFNy4yLjD6CnJLZGLzLWJpdHPАQPoFY3RpbWXCbQi8Zf0IdXNLZC1tZW3CsMQQAPoIYW9mLWJhc2XAAP/wbjv+wP9aog==";
     @Autowired
     public RespSerializer respSerializer;
     @Autowired
@@ -95,5 +97,29 @@ public class CommandHandler {
 
         }
         return "+OK\r\n";
+    }
+
+    public byte[] concatenate(byte[] a , byte[] b){
+        byte[] result=new byte[a.length+b.length];
+        System.arraycopy(a,0,result,0,a.length);
+        System.arraycopy(b,0,result,a.length,b.length);
+        return result;
+    }
+    public ResponseDto psync(String[] command) {
+        String replicationIdMaster=command[1];
+        String replicationOffsetMaster=command[2];
+        if(replicationIdMaster.equals("?")&&replicationOffsetMaster.equals("-1")){
+            String replicationId=redisConfig.getMasterReplId();
+            Long replicationOffset=redisConfig.getMasterReplOffset();
+            String res="+FULLRESYNC "+replicationId +" "+replicationOffset+"\r\n";
+            byte[] rdbFileData= Base64.getDecoder().decode(emptyRdbFile);
+            String length=rdbFileData.length+"";
+            String fullResyncHeader="$"+length+"\r\n";
+            byte[] header=fullResyncHeader.getBytes();
+
+            return new ResponseDto(res,concatenate(header,rdbFileData));
+        }else{
+            return new ResponseDto("Options not supported yet.");
+        }
     }
 }

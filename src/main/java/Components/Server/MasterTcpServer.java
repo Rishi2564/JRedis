@@ -1,9 +1,11 @@
 package Components.Server;
 
 import Components.Infra.ConnectionPool;
+import Components.Infra.Slave;
 import Components.Service.CommandHandler;
 import Components.Service.RespSerializer;
 import Components.Infra.Client;
+import Components.Service.ResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -87,6 +89,7 @@ public class MasterTcpServer {
     }
     public void handleCommand(String[] command,Client client)throws IOException {
         String res="";
+        byte[]data=null;
         switch (command[0]){
             case "PING":
                 res=commandHandler.ping(command);
@@ -107,10 +110,13 @@ public class MasterTcpServer {
             case "REPLCONF":
                 res=commandHandler.replconf(command, client);
                 break;
+            case "PSYNC":
+                ResponseDto resDto  =commandHandler.psync(command);
+                res=resDto.response;
+                data=resDto.data;
+                break;
         }
-        if(res!=null && !res.equals("")){
-            client.outputStream.write(res.getBytes());
-        }
+        client.send(res,data);
 
     }
 }
