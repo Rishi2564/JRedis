@@ -1,8 +1,9 @@
 package Components.Server;
 
+import Components.Infra.ConnectionPool;
 import Components.Service.CommandHandler;
 import Components.Service.RespSerializer;
-import Infra.Client;
+import Components.Infra.Client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,14 +18,20 @@ import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
-public class TcpServer {
+public class MasterTcpServer {
     @Autowired
     private RespSerializer respSerializer;
     @Autowired
     private CommandHandler commandHandler;
-    public void startServer(int port){
+    @Autowired
+    private RedisConfig redisConfig;
+    @Autowired
+    private ConnectionPool connectionPool;
+
+    public void startServer(){
         ServerSocket serverSocket = null;
         Socket clientSocket = null;
+        int port = this.redisConfig.getPort();
 //        int port = 6379;
         try {
             serverSocket = new ServerSocket(port);
@@ -64,8 +71,7 @@ public class TcpServer {
 
     }
     public void handleClient(Client client)throws IOException {
-
-
+        connectionPool.addClient(client);
         while(client.socket.isConnected()){
             byte[] buffer = new byte[client.socket.getReceiveBufferSize()];
             int bytesRead=client.inputStream.read(buffer);
@@ -75,7 +81,9 @@ public class TcpServer {
                    handleCommand(command,client);
                 }
             }
-        } 
+        }
+        connectionPool.removeClient(client);
+        connectionPool.removeSlave(client);
     }
     public void handleCommand(String[] command,Client client)throws IOException {
         String res="";
@@ -95,6 +103,9 @@ public class TcpServer {
                 break;
             case "INFO":
                 res=commandHandler.info(command);
+                break;
+            case "REPLCONF":
+                res=commandHandler.replconf(command, client);
                 break;
         }
         if(res!=null && !res.equals("")){
