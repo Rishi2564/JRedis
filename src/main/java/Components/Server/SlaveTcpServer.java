@@ -1,6 +1,7 @@
 package Components.Server;
 
 import Components.Infra.ConnectionPool;
+import Components.Infra.Slave;
 import Components.Service.CommandHandler;
 import Components.Service.ResponseDto;
 import Components.Service.RespSerializer;
@@ -159,7 +160,5 @@ public class SlaveTcpServer {
                 break;
         }
         client.send(res,data);
-        
-
     }
 }

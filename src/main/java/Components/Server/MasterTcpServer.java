@@ -100,6 +100,7 @@ public class MasterTcpServer {
                 break;
             case "SET":
                 res=commandHandler.set(command);
+                CompletableFuture.runAsync(()->propagate(command));
                 break;
             case "GET":
                 res=commandHandler.get(command);
@@ -118,5 +119,16 @@ public class MasterTcpServer {
         }
         client.send(res,data);
 
+    }
+
+    private void propagate(String[] command) {
+        String commandRespString=respSerializer.respArray(command);
+        try{
+            for(Slave slave:connectionPool.getSlaves()){
+                slave.send(commandRespString.getBytes());
+            }
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
     }
 }
