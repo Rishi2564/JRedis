@@ -52,10 +52,11 @@ public class Store {
             LocalDateTime now = LocalDateTime.now();
 
             Value value=map.get(key);
-            if(value.expiry.isBefore(now)) {
+            if(value!=null&&value.expiry.isBefore(now)) {
                 map.remove(key);
                 return "$-1\r\n";
             }
+            assert value != null;
             return respSerializer.serializeBulkString(value.val);
         }
         catch(Exception e){

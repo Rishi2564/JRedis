@@ -95,4 +95,16 @@ public class RespSerializer {
         }
         return String.join("\r\n", res)+"\r\n";
     }
+
+    public String[] parseArray(String[] parts) {
+        String len=parts[0];
+        int length=Integer.parseInt(len);
+        String _command[]=new String[length];
+        int idx=0;
+        _command[idx++]=parts[2];
+        for(int i=4;i<length;i+=2){
+            _command[idx++]=parts[i];
+        }
+        return _command;
+    }
 }
